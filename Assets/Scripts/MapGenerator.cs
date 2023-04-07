@@ -10,7 +10,7 @@ public class MapGenerator : MonoBehaviour
 	[SerializeField] private GameObject floorPrefab;
 	[SerializeField] private GameObject wallPrefab;
 
-    void Start()
+    private void Start()
     {
 		Vector2 floorSize = new Vector2(Random.Range(5, 20), Random.Range(5, 20));
 
@@ -29,9 +29,4 @@ public class MapGenerator : MonoBehaviour
 		instance = Instantiate(wallPrefab, new Vector3(0.0f, 0.0f, -(floorSize.y + 1) * 0.5f), Quaternion.identity, walls);
 		instance.transform.localScale = new Vector3(floorSize.x + 2, 2, 1);
 	}
-
-    void Update()
-    {
-        
-    }
 }

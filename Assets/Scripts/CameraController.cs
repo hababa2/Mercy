@@ -8,7 +8,7 @@ public class CameraController : MonoBehaviour
 	[SerializeField] private float speed;
 	[SerializeField] private float offset;
 
-    void Update()
+    private void Update()
     {
         if(target != null)
 		{
