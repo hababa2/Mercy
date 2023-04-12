@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
 {
 	private LayerMask attackMask;
 
-	private float MOVEMENT_SPEED = 2.0f;
+	private float MOVEMENT_SPEED = 4.0f;
 	private int damage = 20;
 
 	private CharacterController controller;
