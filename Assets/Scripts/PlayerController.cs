@@ -48,7 +48,10 @@ public class PlayerController : MonoBehaviour
 
 		foreach(Collider collider in colliders)
 		{
-			collider.gameObject.GetComponent<EnemyController>().Damage(damage);
+			if(collider.gameObject.TryGetComponent(out EnemyController controller))
+			{
+				controller.Damage(damage);
+			}
 		}
 	}
 }
