@@ -19,6 +19,8 @@ public class EnemyController : MonoBehaviour
 
 	private void Update()
 	{
+		//TODO: Check for player and if they're in sight
+
 		Vector3 look = player.position - transform.position;
 
 		transform.eulerAngles = new Vector3(0.0f, Mathf.Rad2Deg * Mathf.Atan2(look.x, look.z), 0.0f);

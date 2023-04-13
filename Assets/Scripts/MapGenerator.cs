@@ -12,7 +12,7 @@ public class MapGenerator : MonoBehaviour
 
     private void Start()
     {
-		Vector2 floorSize = new Vector2(Random.Range(5, 20), Random.Range(5, 20));
+		Vector2 floorSize = new Vector2(Random.Range(10, 20), Random.Range(10, 20));
 
 		GameObject instance = Instantiate(floorPrefab, new Vector3(0.0f, -0.5f, 0.0f), Quaternion.identity, floor);
 		instance.transform.localScale = new Vector3(floorSize.x, 1, floorSize.y);
