@@ -381,7 +381,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2071472056494974522, guid: 0a5d9966467e54241ae3d44eaba5dbe1, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2071472056494974522, guid: 0a5d9966467e54241ae3d44eaba5dbe1, type: 3}
       propertyPath: m_LocalPosition.x
@@ -389,7 +389,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2071472056494974522, guid: 0a5d9966467e54241ae3d44eaba5dbe1, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 2071472056494974522, guid: 0a5d9966467e54241ae3d44eaba5dbe1, type: 3}
       propertyPath: m_LocalPosition.z
@@ -522,7 +522,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 45, y: 45, z: 0}
 --- !u!1 &1632811326
 GameObject:
@@ -610,7 +610,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3081867401579325434, guid: e47cf83673497da4f9c4ff2dcbd8ff16, type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3081867401579325434, guid: e47cf83673497da4f9c4ff2dcbd8ff16, type: 3}
       propertyPath: m_LocalPosition.x
@@ -618,7 +618,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3081867401579325434, guid: e47cf83673497da4f9c4ff2dcbd8ff16, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 3081867401579325434, guid: e47cf83673497da4f9c4ff2dcbd8ff16, type: 3}
       propertyPath: m_LocalPosition.z
@@ -737,7 +737,7 @@ Transform:
   - {fileID: 2134411864}
   - {fileID: 1881980003}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2121204083
 GameObject:
@@ -791,7 +791,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0.15686275, g: 0.11764706, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
