@@ -53,7 +53,7 @@ public class MapGenerator2 : MonoBehaviour
 
 			foreach(Door door in room.doors)
 			{
-				if()
+				//if()
 			}
 
 			rooms[roomNum] = room;
