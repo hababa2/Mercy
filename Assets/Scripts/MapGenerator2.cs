@@ -51,11 +51,6 @@ public class MapGenerator2 : MonoBehaviour
 			room.doorCount = Random.Range(1, 5);
 			room.doors = new Door[room.doorCount];
 
-			foreach(Door door in room.doors)
-			{
-				//if()
-			}
-
 			rooms[roomNum] = room;
 		}
 		else
