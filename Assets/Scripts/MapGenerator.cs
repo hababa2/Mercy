@@ -19,6 +19,7 @@ public class MapGenerator : MonoBehaviour
 	[SerializeField] private Transform walls;
 	[SerializeField] private GameObject floorPrefab;
 	[SerializeField] private GameObject wallPrefab;
+	[SerializeField] private GameObject enemy;
 
 	private static readonly byte ROOM_COUNT = 8;
 	private byte roomCount;
@@ -47,11 +48,15 @@ public class MapGenerator : MonoBehaviour
 					break;
 				}
 			}
+
+			if(roomCount != ROOM_COUNT - 1) { success = false; }
+
 		} while (!success);
 
 		for (int i = 0; i < ROOM_COUNT; ++i)
 		{
 			SetupWalls(rooms[i]);
+			if (i > 0) { SpawnEnemies(rooms[i]); }
 		}
 	}
 
@@ -117,8 +122,6 @@ public class MapGenerator : MonoBehaviour
 						room.position.z += (room.size.y + room.prevRoom.size.y) / 2.0f + room.dist;
 						room.position.x += (room.size.x - room.prevRoom.size.x) / 2.0f - (room.doors[1] - room.prevRoom.doors[0]);
 						room.doorsTaken[1] = true;
-
-						if (CollisionCheck(room, 0)) { room.prevRoom.doors[0] = 0; return false; }
 					}
 					break;
 				case 1: //SOUTH
@@ -129,8 +132,6 @@ public class MapGenerator : MonoBehaviour
 						room.position.z -= (room.size.y + room.prevRoom.size.y) / 2.0f + room.dist;
 						room.position.x += (room.size.x - room.prevRoom.size.x) / 2.0f - (room.doors[0] - room.prevRoom.doors[1]);
 						room.doorsTaken[0] = true;
-
-						if (CollisionCheck(room, 1)) { room.prevRoom.doors[1] = 0; return false; }
 					}
 					break;
 				case 2: //EAST
@@ -141,8 +142,6 @@ public class MapGenerator : MonoBehaviour
 						room.position.x += (room.size.x + room.prevRoom.size.x) / 2.0f + room.dist;
 						room.position.z += (room.size.y - room.prevRoom.size.y) / 2.0f - (room.doors[3] - room.prevRoom.doors[2]);
 						room.doorsTaken[3] = true;
-
-						if (CollisionCheck(room, 2)) { room.prevRoom.doors[2] = 0; return false; }
 					}
 					break;
 				case 3: //WEST
@@ -153,11 +152,11 @@ public class MapGenerator : MonoBehaviour
 						room.position.x -= (room.size.x + room.prevRoom.size.x) / 2.0f + room.dist;
 						room.position.z += (room.size.y - room.prevRoom.size.y) / 2.0f - (room.doors[2] - room.prevRoom.doors[3]);
 						room.doorsTaken[2] = true;
-
-						if (CollisionCheck(room, 3)) { room.prevRoom.doors[3] = 0; return false; }
 					}
 					break;
 			}
+
+			if (CollisionCheck(room)) { room.prevRoom.doors[doorIndex] = 0; return false; }
 
 			if (roomCount < ROOM_COUNT - 1 && room.doors[0] < 1) { room.doors[0] = (sbyte)Random.Range(-room.size.x, room.size.x - 1); if (room.doors[0] > 0) { ++roomCount; } }
 			if (roomCount < ROOM_COUNT - 1 && room.doors[1] < 1) { room.doors[1] = (sbyte)Random.Range(-room.size.x, room.size.x - 1); if (room.doors[1] > 0) { ++roomCount; } }
@@ -313,7 +312,7 @@ public class MapGenerator : MonoBehaviour
 		}
 	}
 
-	bool CollisionCheck(Room room, int direction)
+	bool CollisionCheck(Room room)
 	{
 		Vector2 halfSizeA = (Vector2)room.size / 2.0f;
 
@@ -332,5 +331,17 @@ public class MapGenerator : MonoBehaviour
 		}
 
 		return false;
+	}
+
+	void SpawnEnemies(Room room)
+	{
+		int enemyCount = (room.size.x + room.size.y) / 6;
+		float halfX = room.size.x / 2.0f - 1.0f;
+		float halfY = room.size.y / 2.0f - 1.0f;
+
+		for (int i = 0; i < enemyCount; ++i)
+		{
+			Instantiate(enemy, room.position + new Vector3(Random.Range(-halfX, halfX), 1.0f, Random.Range(-halfY, halfY)), Quaternion.identity);
+		}
 	}
 }
