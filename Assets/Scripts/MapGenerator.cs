@@ -21,7 +21,7 @@ public class MapGenerator : MonoBehaviour
 	[SerializeField] private GameObject wallPrefab;
 
 	private static readonly byte ROOM_COUNT = 8;
-	private byte roomCount = 1;
+	private byte roomCount;
 
 	private Room[] rooms;
 
@@ -32,6 +32,7 @@ public class MapGenerator : MonoBehaviour
 
 		do
 		{
+			roomCount = 1;
 			prevRoom = 0;
 			success = true;
 			rooms = new Room[ROOM_COUNT];
@@ -70,8 +71,6 @@ public class MapGenerator : MonoBehaviour
 			if (spawn.doors[3] > 0) { ++roomCount; }
 
 			spawn.doors[2] = (sbyte)Random.Range(1, spawn.size.y - 1);
-
-			//TODO: Spawn enemies
 
 			prevNum = num;
 
