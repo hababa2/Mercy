@@ -91,7 +91,7 @@ GameObject:
   - component: {fileID: 3081867401579325381}
   m_Layer: 8
   m_Name: Enemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -397,7 +397,7 @@ GameObject:
   - component: {fileID: 4738764606573319557}
   - component: {fileID: 3452316760258527562}
   - component: {fileID: 4144813024090664180}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Eye
   m_TagString: Untagged
   m_Icon: {fileID: 0}

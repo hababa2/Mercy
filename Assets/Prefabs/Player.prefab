@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 19985632339006603}
   - component: {fileID: 7511080775837854386}
   - component: {fileID: 3165293435278860705}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Eye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -213,3 +213,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8408559b787ac7c429e2503327601166, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  healthBar: {fileID: 0}
