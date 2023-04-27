@@ -45,7 +45,7 @@ public class PlayerController : MonoBehaviour
 		attackTimer -= Time.deltaTime;
 		IframeTimer -= Time.deltaTime;
 
-		if(Input.GetMouseButtonDown(0) && attackTimer <= 0) { Attack(); }
+		if(Input.GetMouseButton(0) && attackTimer <= 0) { Attack(); }
 	}
 
 	private void Attack()

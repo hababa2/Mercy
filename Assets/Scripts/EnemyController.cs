@@ -45,7 +45,7 @@ public class EnemyController : MonoBehaviour
 		{
 			Vector3 dir = player.position - transform.position;
 
-			if(Physics.Raycast(transform.position, dir, out RaycastHit hit,  30.0f, sightMask.value) &&
+			if(Physics.Raycast(transform.position, dir, out RaycastHit hit, 10.0f, sightMask.value) &&
 				hit.collider.tag == "Player")
 			{
 				targetRotation = Quaternion.Euler(0.0f, Mathf.Rad2Deg * Mathf.Atan2(dir.x, dir.z), 0.0f);

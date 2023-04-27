@@ -2,37 +2,22 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-class Room
-{
-	public Vector3 position;
-	public Vector2Int size;
-	public sbyte[] doors = new sbyte[4];
-	public bool[] doorsTaken = new bool[4];
-	public Room prevRoom;
-	public int dist;
-	public byte dir;
-}
-
 public class MapGenerator : MonoBehaviour
 {
-	[SerializeField] private Transform floor;
-	[SerializeField] private Transform walls;
-	[SerializeField] private GameObject floorPrefab;
-	[SerializeField] private GameObject wallPrefab;
-	[SerializeField] private GameObject enemy;
+	[SerializeField] private Room roomPrefab;
 
-	private static readonly byte ROOM_COUNT = 8;
+	private static readonly byte ROOM_COUNT = MapHandler.ROOM_COUNT;
 	private byte roomCount;
 
-	private Room[] rooms;
-
-	private void Start()
+	public void Generate(ref Room[] rooms)
 	{
 		int prevRoom;
 		bool success;
 
 		do
 		{
+			if (rooms != null) { foreach (Room room in rooms) { if (room != null) { Destroy(room.gameObject); } } }
+
 			roomCount = 1;
 			prevRoom = 0;
 			success = true;
@@ -40,8 +25,8 @@ public class MapGenerator : MonoBehaviour
 
 			for (int i = 0; i < ROOM_COUNT && prevRoom != ROOM_COUNT;)
 			{
-				rooms[i] = new Room();
-				if (GenerateRoom(i, ref prevRoom)) { ++i; }
+				rooms[i] = Instantiate(roomPrefab);
+				if (GenerateRoom(rooms, i, ref prevRoom)) { ++i; }
 				if (prevRoom >= i)
 				{
 					success = false;
@@ -52,15 +37,9 @@ public class MapGenerator : MonoBehaviour
 			if(roomCount != ROOM_COUNT - 1) { success = false; }
 
 		} while (!success);
-
-		for (int i = 0; i < ROOM_COUNT; ++i)
-		{
-			SetupWalls(rooms[i]);
-			if (i > 0) { SpawnEnemies(rooms[i]); }
-		}
 	}
 
-	private bool GenerateRoom(int num, ref int prevNum)
+	private bool GenerateRoom(Room[] rooms, int num, ref int prevNum)
 	{
 		if (num == 0) //This is the spawn room
 		{
@@ -156,7 +135,7 @@ public class MapGenerator : MonoBehaviour
 					break;
 			}
 
-			if (CollisionCheck(room)) { room.prevRoom.doors[doorIndex] = 0; return false; }
+			if (CollisionCheck(rooms, room)) { room.prevRoom.doors[doorIndex] = 0; return false; }
 
 			if (roomCount < ROOM_COUNT - 1 && room.doors[0] < 1) { room.doors[0] = (sbyte)Random.Range(-room.size.x, room.size.x - 1); if (room.doors[0] > 0) { ++roomCount; } }
 			if (roomCount < ROOM_COUNT - 1 && room.doors[1] < 1) { room.doors[1] = (sbyte)Random.Range(-room.size.x, room.size.x - 1); if (room.doors[1] > 0) { ++roomCount; } }
@@ -167,152 +146,7 @@ public class MapGenerator : MonoBehaviour
 		}
 	}
 
-	private void SetupWalls(Room room)
-	{
-		GameObject floorInstance = Instantiate(floorPrefab, new Vector3(room.position.x, 0.0f, room.position.z), Quaternion.identity, floor);
-		floorInstance.transform.localScale = new Vector3(room.size.x, 1.0f, room.size.y);
-
-		if (room.doors[0] > 0) //Setup walls with a door
-		{
-			GameObject instance = Instantiate(wallPrefab, room.position + new Vector3((room.doors[0] - room.size.x - 2.0f) / 2.0f, 0.0f, (room.size.y + 1) * 0.5f), Quaternion.identity, walls);
-			instance.transform.localScale = new Vector3(room.doors[0], 2.0f, 1.0f);
-
-			instance = Instantiate(wallPrefab, room.position + new Vector3((room.doors[0] + 2.0f) / 2.0f, 0.0f, (room.size.y + 1.0f) * 0.5f), Quaternion.identity, walls);
-			instance.transform.localScale = new Vector3(room.size.x - room.doors[0], 2.0f, 1.0f);
-		}
-		else //No Door
-		{
-			room.doors[0] = 0;
-			GameObject instance = Instantiate(wallPrefab, room.position + new Vector3(0.0f, 0.0f, (room.size.y + 1.0f) * 0.5f), Quaternion.identity, walls);
-			instance.transform.localScale = new Vector3(room.size.x + 2.0f, 2.0f, 1.0f);
-		}
-
-		if (room.doors[1] > 0) //Setup walls with a door
-		{
-			GameObject instance = Instantiate(wallPrefab, room.position + new Vector3((room.doors[1] - room.size.x - 2.0f) / 2.0f, 0.0f, -(room.size.y + 1) * 0.5f), Quaternion.identity, walls);
-			instance.transform.localScale = new Vector3(room.doors[1], 2.0f, 1.0f);
-
-			instance = Instantiate(wallPrefab, room.position + new Vector3((room.doors[1] + 2.0f) / 2.0f, 0.0f, -(room.size.y + 1) * 0.5f), Quaternion.identity, walls);
-			instance.transform.localScale = new Vector3(room.size.x - room.doors[1], 2.0f, 1.0f);
-		}
-		else //No Door
-		{
-			room.doors[1] = 0;
-			GameObject instance = Instantiate(wallPrefab, room.position + new Vector3(0.0f, 0.0f, -(room.size.y + 1) * 0.5f), Quaternion.identity, walls);
-			instance.transform.localScale = new Vector3(room.size.x + 2, 2.0f, 1.0f);
-		}
-
-		if (room.doors[2] > 0) //Setup walls with a door
-		{
-			if (room.doors[2] > 1)
-			{
-				GameObject instance = Instantiate(wallPrefab, room.position + new Vector3((room.size.x + 1.0f) * 0.5f, 0.0f, (room.doors[2] - room.size.y - 1.0f) / 2.0f), Quaternion.identity, walls);
-				instance.transform.localScale = new Vector3(1.0f, 2.0f, room.doors[2] - 1);
-			}
-
-			if (room.doors[2] < room.size.y - 1)
-			{
-				GameObject instance = Instantiate(wallPrefab, room.position + new Vector3((room.size.x + 1.0f) * 0.5f, 0.0f, (room.doors[2] + 1.0f) / 2.0f), Quaternion.identity, walls);
-				instance.transform.localScale = new Vector3(1.0f, 2.0f, room.size.y - room.doors[2] - 1.0f);
-			}
-		}
-		else //No Door
-		{
-			room.doors[2] = 0;
-			GameObject instance = Instantiate(wallPrefab, room.position + new Vector3((room.size.x + 1.0f) * 0.5f, 0.0f, 0.0f), Quaternion.identity, walls);
-			instance.transform.localScale = new Vector3(1.0f, 2.0f, room.size.y);
-		}
-
-		if (room.doors[3] > 0) //Setup walls with a door
-		{
-			if (room.doors[3] > 1)
-			{
-				GameObject instance = Instantiate(wallPrefab, room.position + new Vector3(-(room.size.x + 1.0f) * 0.5f, 0.0f, (room.doors[3] - room.size.y - 1.0f) / 2.0f), Quaternion.identity, walls);
-				instance.transform.localScale = new Vector3(1.0f, 2.0f, room.doors[3] - 1.0f);
-			}
-
-			if (room.doors[3] < room.size.y - 1)
-			{
-				GameObject instance = Instantiate(wallPrefab, room.position + new Vector3(-(room.size.x + 1.0f) * 0.5f, 0.0f, (room.doors[3] + 1.0f) / 2.0f), Quaternion.identity, walls);
-				instance.transform.localScale = new Vector3(1.0f, 2.0f, room.size.y - room.doors[3] - 1.0f);
-			}
-		}
-		else //No Door
-		{
-			room.doors[3] = 0;
-			GameObject instance = Instantiate(wallPrefab, room.position + new Vector3(-(room.size.x + 1.0f) * 0.5f, 0.0f, 0.0f), Quaternion.identity, walls);
-			instance.transform.localScale = new Vector3(1.0f, 2.0f, room.size.y);
-		}
-
-		if (room.prevRoom != null)
-		{
-			switch (room.dir)
-			{
-				case 0:
-					{
-						float x = -room.prevRoom.size.x / 2.0f + room.prevRoom.doors[0];
-						float z = (room.prevRoom.size.y + room.dist) / 2.0f;
-
-						GameObject hInstance = Instantiate(floorPrefab, room.prevRoom.position + new Vector3(x, -0.5f, z), Quaternion.identity, floor);
-						hInstance.transform.localScale = new Vector3(2.0f, 1.0f, room.dist);
-
-						hInstance = Instantiate(wallPrefab, room.prevRoom.position + new Vector3(x + 1.5f, 0.0f, z), Quaternion.identity, walls);
-						hInstance.transform.localScale = new Vector3(1.0f, 2.0f, room.dist - 2);
-
-						hInstance = Instantiate(wallPrefab, room.prevRoom.position + new Vector3(x - 1.5f, 0.0f, z), Quaternion.identity, walls);
-						hInstance.transform.localScale = new Vector3(1.0f, 2.0f, room.dist - 2);
-					}
-					break;
-				case 1:
-					{
-						float x = -room.prevRoom.size.x / 2.0f + room.prevRoom.doors[1];
-						float z = -(room.prevRoom.size.y + room.dist) / 2.0f;
-
-						GameObject hInstance = Instantiate(floorPrefab, room.prevRoom.position + new Vector3(x, -0.5f, z), Quaternion.identity, floor);
-						hInstance.transform.localScale = new Vector3(2.0f, 1.0f, room.dist);
-
-						hInstance = Instantiate(wallPrefab, room.prevRoom.position + new Vector3(x + 1.5f, 0.0f, z), Quaternion.identity, walls);
-						hInstance.transform.localScale = new Vector3(1.0f, 2.0f, room.dist - 2);
-
-						hInstance = Instantiate(wallPrefab, room.prevRoom.position + new Vector3(x - 1.5f, 0.0f, z), Quaternion.identity, walls);
-						hInstance.transform.localScale = new Vector3(1.0f, 2.0f, room.dist - 2);
-					}
-					break;
-				case 2:
-					{
-						float x = (room.prevRoom.size.x + room.dist) / 2.0f;
-						float z = -room.prevRoom.size.y / 2.0f + room.prevRoom.doors[2];
-
-						GameObject hInstance = Instantiate(floorPrefab, room.prevRoom.position + new Vector3(x, -0.5f, z), Quaternion.identity, floor);
-						hInstance.transform.localScale = new Vector3(room.dist, 1.0f, 2.0f);
-
-						hInstance = Instantiate(wallPrefab, room.prevRoom.position + new Vector3(x, 0.0f, z + 1.5f), Quaternion.identity, floor);
-						hInstance.transform.localScale = new Vector3(room.dist - 2, 2.0f, 1.0f);
-
-						hInstance = Instantiate(wallPrefab, room.prevRoom.position + new Vector3(x, 0.0f, z - 1.5f), Quaternion.identity, floor);
-						hInstance.transform.localScale = new Vector3(room.dist - 2, 2.0f, 1.0f);
-					}
-					break;
-				case 3:
-					{
-						float x = -(room.prevRoom.size.x + room.dist) / 2.0f;
-						float z = -room.prevRoom.size.y / 2.0f + room.prevRoom.doors[3];
-
-						GameObject hInstance = Instantiate(floorPrefab, room.prevRoom.position + new Vector3(x, -0.5f, z), Quaternion.identity, floor);
-						hInstance.transform.localScale = new Vector3(room.dist, 1.0f, 2.0f);
-
-						hInstance = Instantiate(wallPrefab, room.prevRoom.position + new Vector3(x, 0.0f, z + 1.5f), Quaternion.identity, floor);
-						hInstance.transform.localScale = new Vector3(room.dist - 2, 2.0f, 1.0f);
-
-						hInstance = Instantiate(wallPrefab, room.prevRoom.position + new Vector3(x, 0.0f, z - 1.5f), Quaternion.identity, floor);
-						hInstance.transform.localScale = new Vector3(room.dist - 2, 2.0f, 1.0f);
-					}
-					break;
-			}
-		}
-	}
-
-	bool CollisionCheck(Room room)
+	bool CollisionCheck(Room[] rooms, Room room)
 	{
 		Vector2 halfSizeA = (Vector2)room.size / 2.0f;
 
@@ -331,17 +165,5 @@ public class MapGenerator : MonoBehaviour
 		}
 
 		return false;
-	}
-
-	void SpawnEnemies(Room room)
-	{
-		int enemyCount = (room.size.x + room.size.y) / 6;
-		float halfX = room.size.x / 2.0f - 1.0f;
-		float halfY = room.size.y / 2.0f - 1.0f;
-
-		for (int i = 0; i < enemyCount; ++i)
-		{
-			Instantiate(enemy, room.position + new Vector3(Random.Range(-halfX, halfX), 1.0f, Random.Range(-halfY, halfY)), Quaternion.identity);
-		}
 	}
 }
