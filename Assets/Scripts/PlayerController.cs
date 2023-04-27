@@ -71,7 +71,6 @@ public class PlayerController : MonoBehaviour
 			health -= damage;
 			healthBar.sizeDelta = new Vector2((float)health / MAX_HEALTH * 500.0f, 60.0f);
 			IframeTimer = IFRAME_TIME;
-			Debug.Log("Hit");
 		}
 	}
 }

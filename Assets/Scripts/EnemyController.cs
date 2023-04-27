@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst.CompilerServices;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,40 +10,61 @@ public class EnemyController : MonoBehaviour
 	[SerializeField] private RectTransform healthBar;
 	private Transform player;
 	private LayerMask attackMask;
+	private LayerMask sightMask;
 	private CharacterController controller;
+	private Quaternion targetRotation;
 
-	private static readonly float MOVEMENT_SPEED = 4.0f;
+	private static readonly float MOVEMENT_SPEED = 2.0f;
 	private static readonly float ATTACK_COOLDOWN = 1.0f;
 	private static readonly int MAX_HEALTH = 100;
 
 	private int health = MAX_HEALTH;
-	private int damage = 20;
+	private int damage = 5;
 	private float attacktimer = 0.0f;
+
+	private bool lineOfSight = false;
+	private float distance = float.MaxValue;
 
 	private void Awake()
 	{
 		player = FindFirstObjectByType<PlayerController>().transform; 
 		controller = GetComponent<CharacterController>();
 		attackMask = LayerMask.GetMask("Player");
+		sightMask = LayerMask.GetMask("Player", "Ground");
+
+		targetRotation = transform.rotation;
 	}
 
 	private void Update()
 	{
-		if (health <= 0)
-		{
-			Destroy(gameObject);
-		}
+		if (health <= 0) { Destroy(gameObject); }
 
 		attacktimer -= Time.deltaTime;
 
 		if (player != null)
 		{
-			Vector3 look = player.position - transform.position;
+			Vector3 dir = player.position - transform.position;
 
-			transform.eulerAngles = new Vector3(0.0f, Mathf.Rad2Deg * Mathf.Atan2(look.x, look.z), 0.0f);
+			if(Physics.Raycast(transform.position, dir, out RaycastHit hit,  30.0f, sightMask.value) &&
+				hit.collider.tag == "Player")
+			{
+				targetRotation = Quaternion.Euler(0.0f, Mathf.Rad2Deg * Mathf.Atan2(dir.x, dir.z), 0.0f);
+				lineOfSight = true;
+				distance = hit.distance;
+			}
+			else { lineOfSight = false; }
+		}
+		else { lineOfSight = false; }
 
-			//TODO: Check if enemy has line of sight to player
-			if (attacktimer <= 0.0f) { Attack(); }
+		transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 0.4f);
+
+		if (lineOfSight)
+		{
+			Vector3 move = transform.forward;
+			move.y = 0.0f;
+			controller.Move(move * MOVEMENT_SPEED * Time.deltaTime);
+
+			if (distance <= 1.2f && attacktimer <= 0.0f) { Attack(); }
 		}
 	}
 
