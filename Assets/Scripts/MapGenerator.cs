@@ -47,14 +47,14 @@ public class MapGenerator : MonoBehaviour
 			spawn.position = Vector3.up * 0.5f;
 			spawn.size = new Vector2Int(Random.Range(3, 11), Random.Range(3, 11)) * 2 + Vector2Int.one;
 
-			spawn.doors[0] = (sbyte)Random.Range(-spawn.size.x, spawn.size.x - 1);
-			if (spawn.doors[0] > 0) { ++roomCount; }
-			spawn.doors[1] = (sbyte)Random.Range(-spawn.size.x, spawn.size.x - 1);
-			if (spawn.doors[1] > 0) { ++roomCount; }
-			spawn.doors[3] = (sbyte)Random.Range(-spawn.size.y, spawn.size.y - 1);
-			if (spawn.doors[3] > 0) { ++roomCount; }
+			spawn.doorLocations[0] = (sbyte)Random.Range(-spawn.size.x, spawn.size.x - 1);
+			if (spawn.doorLocations[0] > 0) { ++roomCount; }
+			spawn.doorLocations[1] = (sbyte)Random.Range(-spawn.size.x, spawn.size.x - 1);
+			if (spawn.doorLocations[1] > 0) { ++roomCount; }
+			spawn.doorLocations[3] = (sbyte)Random.Range(-spawn.size.y, spawn.size.y - 1);
+			if (spawn.doorLocations[3] > 0) { ++roomCount; }
 
-			spawn.doors[2] = (sbyte)Random.Range(1, spawn.size.y - 1);
+			spawn.doorLocations[2] = (sbyte)Random.Range(1, spawn.size.y - 1);
 
 			prevNum = num;
 
@@ -73,7 +73,7 @@ public class MapGenerator : MonoBehaviour
 			{
 				for (byte i = 0; i < 4; ++i)
 				{
-					if (room.prevRoom.doors[i] > 0 && room.prevRoom.doorsTaken[i] == false)
+					if (room.prevRoom.doorLocations[i] > 0 && room.prevRoom.doorsTaken[i] == false)
 					{
 						doorIndex = i;
 						room.prevRoom.doorsTaken[i] = true;
@@ -95,52 +95,52 @@ public class MapGenerator : MonoBehaviour
 			{
 				case 0: //NORTH
 					{
-						room.doors[1] = (sbyte)Random.Range(1, room.size.x - 1);
+						room.doorLocations[1] = (sbyte)Random.Range(1, room.size.x - 1);
 						room.dist = Random.Range(3, 10);
 						room.dir = 0;
 						room.position.z += (room.size.y + room.prevRoom.size.y) / 2.0f + room.dist;
-						room.position.x += (room.size.x - room.prevRoom.size.x) / 2.0f - (room.doors[1] - room.prevRoom.doors[0]);
+						room.position.x += (room.size.x - room.prevRoom.size.x) / 2.0f - (room.doorLocations[1] - room.prevRoom.doorLocations[0]);
 						room.doorsTaken[1] = true;
 					}
 					break;
 				case 1: //SOUTH
 					{
-						room.doors[0] = (sbyte)Random.Range(1, room.size.x - 1);
+						room.doorLocations[0] = (sbyte)Random.Range(1, room.size.x - 1);
 						room.dist = Random.Range(3, 10);
 						room.dir = 1;
 						room.position.z -= (room.size.y + room.prevRoom.size.y) / 2.0f + room.dist;
-						room.position.x += (room.size.x - room.prevRoom.size.x) / 2.0f - (room.doors[0] - room.prevRoom.doors[1]);
+						room.position.x += (room.size.x - room.prevRoom.size.x) / 2.0f - (room.doorLocations[0] - room.prevRoom.doorLocations[1]);
 						room.doorsTaken[0] = true;
 					}
 					break;
 				case 2: //EAST
 					{
-						room.doors[3] = (sbyte)Random.Range(1, room.size.y - 1);
+						room.doorLocations[3] = (sbyte)Random.Range(1, room.size.y - 1);
 						room.dist = Random.Range(3, 10);
 						room.dir = 2;
 						room.position.x += (room.size.x + room.prevRoom.size.x) / 2.0f + room.dist;
-						room.position.z += (room.size.y - room.prevRoom.size.y) / 2.0f - (room.doors[3] - room.prevRoom.doors[2]);
+						room.position.z += (room.size.y - room.prevRoom.size.y) / 2.0f - (room.doorLocations[3] - room.prevRoom.doorLocations[2]);
 						room.doorsTaken[3] = true;
 					}
 					break;
 				case 3: //WEST
 					{
-						room.doors[2] = (sbyte)Random.Range(1, room.size.y - 1);
+						room.doorLocations[2] = (sbyte)Random.Range(1, room.size.y - 1);
 						room.dist = Random.Range(3, 10);
 						room.dir = 3;
 						room.position.x -= (room.size.x + room.prevRoom.size.x) / 2.0f + room.dist;
-						room.position.z += (room.size.y - room.prevRoom.size.y) / 2.0f - (room.doors[2] - room.prevRoom.doors[3]);
+						room.position.z += (room.size.y - room.prevRoom.size.y) / 2.0f - (room.doorLocations[2] - room.prevRoom.doorLocations[3]);
 						room.doorsTaken[2] = true;
 					}
 					break;
 			}
 
-			if (CollisionCheck(rooms, room)) { room.prevRoom.doors[doorIndex] = 0; return false; }
+			if (CollisionCheck(rooms, room)) { room.prevRoom.doorLocations[doorIndex] = 0; return false; }
 
-			if (roomCount < ROOM_COUNT - 1 && room.doors[0] < 1) { room.doors[0] = (sbyte)Random.Range(-room.size.x, room.size.x - 1); if (room.doors[0] > 0) { ++roomCount; } }
-			if (roomCount < ROOM_COUNT - 1 && room.doors[1] < 1) { room.doors[1] = (sbyte)Random.Range(-room.size.x, room.size.x - 1); if (room.doors[1] > 0) { ++roomCount; } }
-			if (roomCount < ROOM_COUNT - 1 && room.doors[2] < 1) { room.doors[2] = (sbyte)Random.Range(-room.size.y, room.size.y - 1); if (room.doors[2] > 0) { ++roomCount; } }
-			if (roomCount < ROOM_COUNT - 1 && room.doors[3] < 1) { room.doors[3] = (sbyte)Random.Range(-room.size.y, room.size.y - 1); if (room.doors[3] > 0) { ++roomCount; } }
+			if (roomCount < ROOM_COUNT - 1 && room.doorLocations[0] < 1) { room.doorLocations[0] = (sbyte)Random.Range(-room.size.x, room.size.x - 1); if (room.doorLocations[0] > 0) { ++roomCount; } }
+			if (roomCount < ROOM_COUNT - 1 && room.doorLocations[1] < 1) { room.doorLocations[1] = (sbyte)Random.Range(-room.size.x, room.size.x - 1); if (room.doorLocations[1] > 0) { ++roomCount; } }
+			if (roomCount < ROOM_COUNT - 1 && room.doorLocations[2] < 1) { room.doorLocations[2] = (sbyte)Random.Range(-room.size.y, room.size.y - 1); if (room.doorLocations[2] > 0) { ++roomCount; } }
+			if (roomCount < ROOM_COUNT - 1 && room.doorLocations[3] < 1) { room.doorLocations[3] = (sbyte)Random.Range(-room.size.y, room.size.y - 1); if (room.doorLocations[3] > 0) { ++roomCount; } }
 
 			return true;
 		}

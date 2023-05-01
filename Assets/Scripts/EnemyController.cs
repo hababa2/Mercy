@@ -25,6 +25,8 @@ public class EnemyController : MonoBehaviour
 	private bool lineOfSight = false;
 	private float distance = float.MaxValue;
 
+	public new bool enabled = false;
+
 	private void Awake()
 	{
 		player = FindFirstObjectByType<PlayerController>().transform; 
@@ -37,8 +39,6 @@ public class EnemyController : MonoBehaviour
 
 	private void Update()
 	{
-		if (health <= 0) { Destroy(gameObject); }
-
 		attacktimer -= Time.deltaTime;
 
 		if (player != null)
@@ -58,7 +58,7 @@ public class EnemyController : MonoBehaviour
 
 		transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 0.4f);
 
-		if (lineOfSight)
+		if (lineOfSight && enabled)
 		{
 			Vector3 move = transform.forward;
 			move.y = 0.0f;
@@ -72,6 +72,12 @@ public class EnemyController : MonoBehaviour
 	{
 		health -= damage;
 		healthBar.sizeDelta = new Vector2((float)health / MAX_HEALTH, 0.2f);
+
+		if(health <= 0)
+		{
+			transform.position = Vector3.one * 1000000.0f;
+			Destroy(gameObject, 1.0f);
+		}
 	}
 
 	private void Attack()
