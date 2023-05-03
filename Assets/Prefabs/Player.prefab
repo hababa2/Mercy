@@ -214,3 +214,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthBar: {fileID: 0}
+  mat: {fileID: 2100000, guid: 74c4e91a3ad85b0458dcdfc20f37a095, type: 2}
+  hurtMat: {fileID: 2100000, guid: a96c38f766e3f274db3aab6387569e8b, type: 2}

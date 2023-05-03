@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Burst.CompilerServices;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -8,10 +9,13 @@ using UnityEngine.UIElements;
 public class EnemyController : MonoBehaviour
 {
 	[SerializeField] private RectTransform healthBar;
+	[SerializeField] private Material mat;
+	[SerializeField] private Material hurtMat;
+	private CharacterController controller;
+	private new MeshRenderer renderer;
 	private Transform player;
 	private LayerMask attackMask;
 	private LayerMask sightMask;
-	private CharacterController controller;
 	private Quaternion targetRotation;
 
 	private static readonly float MOVEMENT_SPEED = 2.0f;
@@ -21,6 +25,8 @@ public class EnemyController : MonoBehaviour
 	private int health = MAX_HEALTH;
 	private int damage = 5;
 	private float attacktimer = 0.0f;
+	private float hitTimer = 0.0f;
+	private bool hit = false;
 
 	private bool lineOfSight = false;
 	private float distance = float.MaxValue;
@@ -31,6 +37,7 @@ public class EnemyController : MonoBehaviour
 	{
 		player = FindFirstObjectByType<PlayerController>().transform; 
 		controller = GetComponent<CharacterController>();
+		renderer = GetComponent<MeshRenderer>();
 		attackMask = LayerMask.GetMask("Player");
 		sightMask = LayerMask.GetMask("Player", "Ground");
 
@@ -40,6 +47,8 @@ public class EnemyController : MonoBehaviour
 	private void Update()
 	{
 		attacktimer -= Time.deltaTime;
+		hitTimer -= Time.deltaTime;
+		if(attacktimer <= 0.0f && hit) { renderer.material = mat; hit = false; }
 
 		if (player != null)
 		{
@@ -72,6 +81,10 @@ public class EnemyController : MonoBehaviour
 	{
 		health -= damage;
 		healthBar.sizeDelta = new Vector2((float)health / MAX_HEALTH, 0.2f);
+
+		hitTimer = 0.1f;
+		hit = true;
+		renderer.material = hurtMat;
 
 		if(health <= 0)
 		{

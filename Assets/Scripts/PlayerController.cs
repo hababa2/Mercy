@@ -9,7 +9,10 @@ using static UnityEngine.RuleTile.TilingRuleOutput;
 public class PlayerController : MonoBehaviour
 {
 	[SerializeField] private RectTransform healthBar;
+	[SerializeField] private Material mat;
+	[SerializeField] private Material hurtMat;
 	private CharacterController controller;
+	private new MeshRenderer renderer;
 	private Vector2 halfScreenSize;
 	private LayerMask attackMask;
 
@@ -21,10 +24,12 @@ public class PlayerController : MonoBehaviour
 	private int damage = 20;
 	private float attackTimer = 0.0f;
 	private float IframeTimer = 0.0f; //TODO: Hit/Iframe Effect
+	private bool invulnerable = false;
 
 	private void Start()
 	{
 		controller = GetComponent<CharacterController>();
+		renderer = GetComponent<MeshRenderer>();
 		halfScreenSize = new Vector2(Screen.width, Screen.height) / 2.0f;
 		attackMask = LayerMask.GetMask("Enemy");
 	}
@@ -44,6 +49,7 @@ public class PlayerController : MonoBehaviour
 
 		attackTimer -= Time.deltaTime;
 		IframeTimer -= Time.deltaTime;
+		if(IframeTimer <= 0.0f && invulnerable) { renderer.material = mat; invulnerable = false; }
 
 		if(Input.GetMouseButton(0) && attackTimer <= 0) { Attack(); }
 	}
@@ -71,6 +77,8 @@ public class PlayerController : MonoBehaviour
 			health -= damage;
 			healthBar.sizeDelta = new Vector2((float)health / MAX_HEALTH * 500.0f, 60.0f);
 			IframeTimer = IFRAME_TIME;
+			renderer.material = hurtMat;
+			invulnerable = true;
 		}
 	}
 }

@@ -194,6 +194,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthBar: {fileID: 676854773098356748}
+  mat: {fileID: 2100000, guid: fc65cbfd3a875834eb68dddf89692e61, type: 2}
+  hurtMat: {fileID: 2100000, guid: 0e1f357d51cffe54e9983902bebf25b8, type: 2}
+  enabled: 0
 --- !u!1 &4971735992031015095
 GameObject:
   m_ObjectHideFlags: 0
