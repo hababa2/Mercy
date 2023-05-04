@@ -48,7 +48,7 @@ public class EnemyController : MonoBehaviour
 	{
 		attacktimer -= Time.deltaTime;
 		hitTimer -= Time.deltaTime;
-		if(attacktimer <= 0.0f && hit) { renderer.material = mat; hit = false; }
+		if(hitTimer <= 0.0f && hit) { renderer.material = mat; hit = false; }
 
 		if (player != null)
 		{
@@ -91,6 +91,12 @@ public class EnemyController : MonoBehaviour
 			transform.position = Vector3.one * 1000000.0f;
 			Destroy(gameObject, 1.0f);
 		}
+	}
+
+	public void KnockBack(float amount, Vector3 dir) //TODO: Smoother Knockback
+	{
+		dir.y = 0.0f;
+		controller.Move(dir * amount);
 	}
 
 	private void Attack()

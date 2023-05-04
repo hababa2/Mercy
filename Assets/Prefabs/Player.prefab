@@ -11,8 +11,7 @@ GameObject:
   - component: {fileID: 6049431339184249938}
   - component: {fileID: 19985632339006603}
   - component: {fileID: 7511080775837854386}
-  - component: {fileID: 3165293435278860705}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Eye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -84,19 +83,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &3165293435278860705
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1417584342747191962}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2071472056494974496
 GameObject:
   m_ObjectHideFlags: 0
@@ -214,5 +200,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthBar: {fileID: 0}
+  meleeCooldown: {fileID: 0}
+  rangedCooldown: {fileID: 0}
   mat: {fileID: 2100000, guid: 74c4e91a3ad85b0458dcdfc20f37a095, type: 2}
   hurtMat: {fileID: 2100000, guid: a96c38f766e3f274db3aab6387569e8b, type: 2}
+  projectile: {fileID: 0}

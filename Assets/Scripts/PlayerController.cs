@@ -1,29 +1,32 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Data.SqlTypes;
 using UnityEngine;
-using UnityEngine.UI;
-using static UnityEngine.RuleTile.TilingRuleOutput;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
-	[SerializeField] private RectTransform healthBar;
+	[SerializeField] private FillBar healthBar;
+	[SerializeField] private FillBar meleeCooldown;
+	[SerializeField] private FillBar rangedCooldown;
 	[SerializeField] private Material mat;
 	[SerializeField] private Material hurtMat;
+	[SerializeField] private GameObject projectile;
 	private CharacterController controller;
 	private new MeshRenderer renderer;
 	private Vector2 halfScreenSize;
 	private LayerMask attackMask;
+	private Transform eye;
 
 	private static readonly float MOVEMENT_SPEED = 4.0f;
-	private static readonly float ATTACK_COOLDOWN = 0.5f;
+	private static readonly float MELEE_ATTACK_COOLDOWN = 1.0f;
+	private static readonly float RANGED_ATTACK_COOLDOWN = 0.25f;
+	private static readonly float ATTACK_COOLDOWN = 0.05f;
 	private static readonly float IFRAME_TIME = 0.25f;
 	private static readonly int MAX_HEALTH = 100;
 	private int health = MAX_HEALTH;
 	private int damage = 20;
+	private float meleeTimer = 0.0f;
+	private float rangedTimer = 0.0f;
 	private float attackTimer = 0.0f;
-	private float IframeTimer = 0.0f; //TODO: Hit/Iframe Effect
+	private float IframeTimer = 0.0f;
 	private bool invulnerable = false;
 
 	private void Start()
@@ -32,6 +35,7 @@ public class PlayerController : MonoBehaviour
 		renderer = GetComponent<MeshRenderer>();
 		halfScreenSize = new Vector2(Screen.width, Screen.height) / 2.0f;
 		attackMask = LayerMask.GetMask("Enemy");
+		eye = transform.GetChild(0);
 	}
 
 	private void Update()
@@ -47,27 +51,50 @@ public class PlayerController : MonoBehaviour
 
 		controller.Move(Quaternion.AngleAxis(45.0f, Vector3.up) * new Vector3(inputX, 0.0f, inputY));
 
+		meleeTimer -= Time.deltaTime;
+		rangedTimer -= Time.deltaTime;
 		attackTimer -= Time.deltaTime;
 		IframeTimer -= Time.deltaTime;
-		if(IframeTimer <= 0.0f && invulnerable) { renderer.material = mat; invulnerable = false; }
+		if (IframeTimer <= 0.0f && invulnerable) { renderer.material = mat; invulnerable = false; }
 
-		if(Input.GetMouseButton(0) && attackTimer <= 0) { Attack(); }
+		rangedCooldown.SetPercent(1.0f - Mathf.Max(rangedTimer, 0.0f) / RANGED_ATTACK_COOLDOWN);
+		meleeCooldown.SetPercent(1.0f - Mathf.Max(meleeTimer, 0.0f) / MELEE_ATTACK_COOLDOWN);
+
+		if (attackTimer <= 0)
+		{
+			if (Input.GetMouseButtonDown(1) && meleeTimer <= 0) { MeleeAttack(); }
+			else if (Input.GetMouseButton(0) && rangedTimer <= 0) { RangedAttack(); }
+		}
 	}
 
-	private void Attack()
+	private void MeleeAttack()
 	{
 		attackTimer = ATTACK_COOLDOWN;
+		meleeTimer = MELEE_ATTACK_COOLDOWN;
+		meleeCooldown.SetPercent(1.0f - meleeTimer / MELEE_ATTACK_COOLDOWN);
 		Quaternion rot = Quaternion.AngleAxis(transform.eulerAngles.y, Vector3.up);
 
 		Collider[] colliders = Physics.OverlapBox(transform.position + rot * Vector3.forward, new Vector3(0.75f, 0.75f, 0.45f), rot, attackMask.value);
 
-		foreach(Collider collider in colliders)
+		foreach (Collider collider in colliders)
 		{
-			if(collider.gameObject.TryGetComponent(out EnemyController controller))
+			if (collider.gameObject.TryGetComponent(out EnemyController controller))
 			{
+				controller.KnockBack(1.0f, (controller.transform.position - transform.position).normalized);
 				controller.Damage(damage);
 			}
 		}
+	}
+
+	private void RangedAttack()
+	{
+		attackTimer = ATTACK_COOLDOWN;
+		rangedTimer = RANGED_ATTACK_COOLDOWN;
+		rangedCooldown.SetPercent(1.0f - rangedTimer / RANGED_ATTACK_COOLDOWN);
+
+		GameObject proj = Instantiate(projectile, eye.position, Quaternion.identity);
+		Projectile p = proj.GetComponent<Projectile>();
+		p.SetVelocity(Quaternion.AngleAxis(0.0f, transform.up) * transform.forward, 5.0f);
 	}
 
 	public void Damage(int damage)
@@ -75,7 +102,7 @@ public class PlayerController : MonoBehaviour
 		if (IframeTimer <= 0.0f)
 		{
 			health -= damage;
-			healthBar.sizeDelta = new Vector2((float)health / MAX_HEALTH * 500.0f, 60.0f);
+			healthBar.SetPercent((float)health / MAX_HEALTH);
 			IframeTimer = IFRAME_TIME;
 			renderer.material = hurtMat;
 			invulnerable = true;
