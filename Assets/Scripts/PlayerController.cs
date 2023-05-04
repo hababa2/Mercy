@@ -44,6 +44,7 @@ public class PlayerController : MonoBehaviour
 
 		Vector2 mousePos = (Vector2)Input.mousePosition - halfScreenSize;
 
+		//TODO: Because the camera is at an angle to the world, the player would always be facing the mouse perfectly
 		transform.eulerAngles = new Vector3(0.0f, Mathf.Rad2Deg * Mathf.Atan2(mousePos.x, mousePos.y) + 45.0f, 0.0f);
 
 		float inputX = Input.GetAxis("Horizontal") * MOVEMENT_SPEED * Time.deltaTime;
@@ -57,8 +58,8 @@ public class PlayerController : MonoBehaviour
 		IframeTimer -= Time.deltaTime;
 		if (IframeTimer <= 0.0f && invulnerable) { renderer.material = mat; invulnerable = false; }
 
-		rangedCooldown.SetPercent(1.0f - Mathf.Max(rangedTimer, 0.0f) / RANGED_ATTACK_COOLDOWN);
-		meleeCooldown.SetPercent(1.0f - Mathf.Max(meleeTimer, 0.0f) / MELEE_ATTACK_COOLDOWN);
+		if (rangedCooldown != null) { rangedCooldown.SetPercent(1.0f - Mathf.Max(rangedTimer, 0.0f) / RANGED_ATTACK_COOLDOWN); }
+		if (meleeCooldown != null) { meleeCooldown.SetPercent(1.0f - Mathf.Max(meleeTimer, 0.0f) / MELEE_ATTACK_COOLDOWN); }
 
 		if (attackTimer <= 0)
 		{
