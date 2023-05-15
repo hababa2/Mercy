@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class LevelTrigger : MonoBehaviour
 {
-	[SerializeField] string level;
+	public string level;
 
 	private void OnTriggerEnter(Collider other)
 	{

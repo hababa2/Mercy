@@ -11,6 +11,8 @@ public class EnemyController : MonoBehaviour
 	[SerializeField] private RectTransform healthBar;
 	[SerializeField] private Material mat;
 	[SerializeField] private Material hurtMat;
+	[SerializeField] private bool ranged;
+	[SerializeField] private int maxHealth;
 	private CharacterController controller;
 	private new MeshRenderer renderer;
 	private Transform player;
@@ -20,9 +22,8 @@ public class EnemyController : MonoBehaviour
 
 	private static readonly float MOVEMENT_SPEED = 2.0f;
 	private static readonly float ATTACK_COOLDOWN = 1.0f;
-	private static readonly int MAX_HEALTH = 100;
 
-	private int health = MAX_HEALTH;
+	private int health;
 	private int damage = 5;
 	private float attacktimer = 0.0f;
 	private float hitTimer = 0.0f;
@@ -42,6 +43,7 @@ public class EnemyController : MonoBehaviour
 		sightMask = LayerMask.GetMask("Player", "Ground");
 
 		targetRotation = transform.rotation;
+		health = maxHealth;
 	}
 
 	private void Update()
@@ -80,7 +82,7 @@ public class EnemyController : MonoBehaviour
 	public void Damage(int damage)
 	{
 		health -= damage;
-		healthBar.sizeDelta = new Vector2((float)health / MAX_HEALTH, 0.2f);
+		healthBar.sizeDelta = new Vector2((float)health / maxHealth, 0.2f);
 
 		hitTimer = 0.1f;
 		hit = true;
@@ -104,7 +106,7 @@ public class EnemyController : MonoBehaviour
 		attacktimer = ATTACK_COOLDOWN;
 		Quaternion rot = Quaternion.AngleAxis(transform.eulerAngles.y, Vector3.up);
 
-		Collider[] colliders = Physics.OverlapBox(transform.position + rot * Vector3.forward, new Vector3(0.75f, 0.75f, 0.45f), rot, attackMask.value);
+		Collider[] colliders = Physics.OverlapBox(transform.position + rot * Vector3.forward * transform.localScale.z, new Vector3(0.75f, 0.75f, 0.45f), rot, attackMask.value);
 
 		foreach (Collider collider in colliders)
 		{

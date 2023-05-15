@@ -49,6 +49,8 @@ MonoBehaviour:
   floorPrefab: {fileID: 4762810658036104804, guid: 7a94ea18ad78d1f4cab1279ab21897b7, type: 3}
   wallPrefab: {fileID: 8098024180429481739, guid: 0eab429b8a6b7664b829be8b98b65944, type: 3}
   roofPrefab: {fileID: 6826565810500350164, guid: 56a840d9c03a49d43824dbeef6e5f3b2, type: 3}
+  projWallPrefab: {fileID: 4513409410229226715, guid: a665df1291ad67c419899c3c6415427b, type: 3}
+  triggerPrefab: {fileID: 2113411836601913203, guid: cbc391e8a36585844937149748e7441b, type: 3}
   position: {x: 0, y: 0, z: 0}
   size: {x: 0, y: 0}
   doorLocations: 00000000
@@ -56,6 +58,7 @@ MonoBehaviour:
   prevRoom: {fileID: 0}
   dist: 0
   dir: 0
+  finalRoom: 0
 --- !u!65 &2065236025
 BoxCollider:
   m_ObjectHideFlags: 0

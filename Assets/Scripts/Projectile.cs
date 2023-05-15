@@ -21,7 +21,7 @@ public class Projectile : MonoBehaviour
 	{
 		if(collision.gameObject.TryGetComponent(out EnemyController controller))
 		{
-			controller.Damage(20);
+			controller.Damage(5);
 		}
 
 		Destroy(gameObject); //TODO: Maybe bounce?

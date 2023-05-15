@@ -168,6 +168,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemy: {fileID: 3081867401579325438, guid: e47cf83673497da4f9c4ff2dcbd8ff16, type: 3}
+  boss: {fileID: 4376961800893825952, guid: 94d4911d00dd68b40b07439179289cab, type: 3}
 --- !u!1 &227895148
 GameObject:
   m_ObjectHideFlags: 0

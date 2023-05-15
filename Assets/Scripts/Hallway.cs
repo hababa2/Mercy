@@ -11,6 +11,11 @@ public class Hallway : MonoBehaviour
 		parent = GetComponentInParent<Room>();
 	}
 
+	private void OnTriggerEnter(Collider other)
+	{
+		if (other.tag == "Player") { parent.OnPlayerEnterHallway(); }
+	}
+
 	private void OnTriggerExit(Collider other)
 	{
 		if (other.tag == "Player") { parent.OnPlayerExitHallway(); }

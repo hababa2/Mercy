@@ -8,6 +8,7 @@ public class MapHandler : MonoBehaviour
 	private Room[] rooms;
 
 	[SerializeField] private GameObject enemy;
+	[SerializeField] private GameObject boss;
 
 	public static readonly byte ROOM_COUNT = 8;
 
@@ -16,11 +17,18 @@ public class MapHandler : MonoBehaviour
 		generator = FindFirstObjectByType<MapGenerator>();
 		generator.Generate(ref rooms);
 
-		for (int i = 0; i < ROOM_COUNT; ++i)
+		rooms[0].Setup();
+
+		for (int i = 1; i < ROOM_COUNT - 1; ++i)
 		{
 			rooms[i].Setup();
-			if (i > 0) { SpawnEnemies(rooms[i]); }
+			SpawnEnemies(rooms[i]);
 		}
+
+		rooms[ROOM_COUNT - 1].finalRoom = true;
+		rooms[ROOM_COUNT - 1].Setup();
+
+		SpawnBoss(rooms[ROOM_COUNT - 1]);
 	}
 
 	void SpawnEnemies(Room room)
@@ -33,5 +41,10 @@ public class MapHandler : MonoBehaviour
 		{
 			Instantiate(enemy, room.position + new Vector3(Random.Range(-halfX, halfX), 1.0f, Random.Range(-halfY, halfY)), Quaternion.identity);
 		}
+	}
+
+	void SpawnBoss(Room room)
+	{
+		Instantiate(boss, room.position + Vector3.up * 2.0f, Quaternion.identity);
 	}
 }

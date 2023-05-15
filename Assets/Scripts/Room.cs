@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class Room : MonoBehaviour
@@ -7,6 +8,8 @@ public class Room : MonoBehaviour
 	[SerializeField] private GameObject floorPrefab;
 	[SerializeField] private GameObject wallPrefab;
 	[SerializeField] private GameObject roofPrefab;
+	[SerializeField] private GameObject projWallPrefab;
+	[SerializeField] private LevelTrigger triggerPrefab;
 
 	[HideInInspector] public Vector3 position;
 	[HideInInspector] public Vector2Int size;
@@ -16,24 +19,33 @@ public class Room : MonoBehaviour
 	[HideInInspector] public int dist;
 	[HideInInspector] public byte dir;
 
-	private bool player = false;
+	private bool playerPresent = false;
 	private bool cleared = true;
+	public bool finalRoom = false;
 
-	private BoxCollider trigger;
+	private BoxCollider roomTrigger;
 	private BoxCollider hallwayTrigger;
+	private GameObject levelTrigger;
 	private MeshRenderer roofRenderer;
 	private List<GameObject> doors = new List<GameObject>();
 	private List<EnemyController> enemies = new List<EnemyController>();
+	private List<EnemyController> bosses = new List<EnemyController>();
+	static private PlayerController player;
 
 	//TODO: Obscuring view of closed rooms
 
+	private void Awake()
+	{
+		if (!player) { player = FindFirstObjectByType<PlayerController>(); }
+	}
+
 	public void Setup()
 	{
-		trigger = GetComponent<BoxCollider>();
+		roomTrigger = GetComponent<BoxCollider>();
 		hallwayTrigger = transform.GetChild(0).GetComponent<BoxCollider>();
 
-		trigger.center = position + Vector3.up * 0.5f;
-		trigger.size = new Vector3(size.x, 1.0f, size.y);
+		roomTrigger.center = position + Vector3.up * 0.5f;
+		roomTrigger.size = new Vector3(size.x, 1.0f, size.y);
 
 		GameObject floorInstance = Instantiate(floorPrefab, new Vector3(position.x, 0.0f, position.z), Quaternion.identity, transform);
 		floorInstance.transform.localScale = new Vector3(size.x, 1.0f, size.y);
@@ -51,6 +63,8 @@ public class Room : MonoBehaviour
 			instance = Instantiate(wallPrefab, position + new Vector3((doorLocations[0] + 2.0f) / 2.0f, 0.0f, (size.y + 1.0f) * 0.5f), Quaternion.identity, transform);
 			instance.transform.localScale = new Vector3(size.x - doorLocations[0], 2.0f, 1.0f);
 
+			GameObject projWall = Instantiate(projWallPrefab, position + new Vector3(-size.x / 2.0f + doorLocations[0], 0.5f, (size.y + 1) * 0.5f), Quaternion.identity, transform);
+			projWall.transform.localScale = new Vector3(2.0f, 1.0f, 1.0f);
 			GameObject door = Instantiate(wallPrefab, position + new Vector3(-size.x / 2.0f + doorLocations[0], 0.5f, (size.y + 1) * 0.5f), Quaternion.identity, transform);
 			door.transform.localScale = new Vector3(2.0f, 1.0f, 1.0f);
 			door.SetActive(false);
@@ -71,6 +85,8 @@ public class Room : MonoBehaviour
 			instance = Instantiate(wallPrefab, position + new Vector3((doorLocations[1] + 2.0f) / 2.0f, 0.0f, -(size.y + 1) * 0.5f), Quaternion.identity, transform);
 			instance.transform.localScale = new Vector3(size.x - doorLocations[1], 2.0f, 1.0f);
 
+			GameObject projWall = Instantiate(projWallPrefab, position + new Vector3(-size.x / 2.0f + doorLocations[1], 0.5f, -(size.y + 1) * 0.5f), Quaternion.identity, transform);
+			projWall.transform.localScale = new Vector3(2.0f, 1.0f, 1.0f);
 			GameObject door = Instantiate(wallPrefab, position + new Vector3(-size.x / 2.0f + doorLocations[1], 0.5f, -(size.y + 1) * 0.5f), Quaternion.identity, transform);
 			door.transform.localScale = new Vector3(2.0f, 1.0f, 1.0f);
 			door.SetActive(false);
@@ -97,6 +113,8 @@ public class Room : MonoBehaviour
 				instance.transform.localScale = new Vector3(1.0f, 2.0f, size.y - doorLocations[2] - 1.0f);
 			}
 
+			GameObject projWall = Instantiate(projWallPrefab, position + new Vector3((size.x + 1.0f) * 0.5f, 0.5f, -size.y / 2.0f + doorLocations[2]), Quaternion.identity, transform);
+			projWall.transform.localScale = new Vector3(1.0f, 1.0f, 2.0f);
 			GameObject door = Instantiate(wallPrefab, position + new Vector3((size.x + 1.0f) * 0.5f, 0.5f, -size.y / 2.0f + doorLocations[2]), Quaternion.identity, transform);
 			door.transform.localScale = new Vector3(1.0f, 1.0f, 2.0f);
 			door.SetActive(false);
@@ -123,6 +141,8 @@ public class Room : MonoBehaviour
 				instance.transform.localScale = new Vector3(1.0f, 2.0f, size.y - doorLocations[3] - 1.0f);
 			}
 
+			GameObject projWall = Instantiate(projWallPrefab, position + new Vector3(-(size.x + 1.0f) * 0.5f, 0.5f, -size.y / 2.0f + doorLocations[3]), Quaternion.identity, transform);
+			projWall.transform.localScale = new Vector3(1.0f, 1.0f, 2.0f);
 			GameObject door = Instantiate(wallPrefab, position + new Vector3(-(size.x + 1.0f) * 0.5f, 0.5f, -size.y / 2.0f + doorLocations[3]), Quaternion.identity, transform);
 			door.transform.localScale = new Vector3(1.0f, 1.0f, 2.0f);
 			door.SetActive(false);
@@ -213,6 +233,17 @@ public class Room : MonoBehaviour
 					break;
 			}
 		}
+
+		if(finalRoom)
+		{
+			float halfX = (size.x - 1.0f) / 2.0f;
+			float halfY = (size.y - 1.0f) / 2.0f;
+
+			LevelTrigger trigger = Instantiate(triggerPrefab, position + new Vector3(halfX, 0.5f, halfY), Quaternion.identity);
+			trigger.level = "Hub";
+			levelTrigger = trigger.gameObject;
+			levelTrigger.SetActive(false);
+		}
 	}
 
 	private void OnTriggerEnter(Collider other)
@@ -221,6 +252,7 @@ public class Room : MonoBehaviour
 		{
 			case "Player": { OnPlayerEnter(); } break;
 			case "Enemy": { OnEnemyEnter(other.GetComponent<EnemyController>()); } break;
+			case "Boss": { OnBossEnter(other.GetComponent<EnemyController>()); } break;
 		}
 	}
 
@@ -230,6 +262,7 @@ public class Room : MonoBehaviour
 		{
 			case "Player": { OnPlayerExit(); } break;
 			case "Enemy": { OnEnemyExit(other.GetComponent<EnemyController>()); } break;
+			case "Boss": { OnBossExit(other.GetComponent<EnemyController>()); } break;
 		}
 	}
 
@@ -237,19 +270,26 @@ public class Room : MonoBehaviour
 	{
 		//roofRenderer.enabled = false;
 
-		player = true;
+		playerPresent = true;
 	}
 
 	private void OnPlayerExit()
 	{
 		//roofRenderer.enabled = true;
 
-		player = false;
+		playerPresent = false;
+	}
+
+	public void OnPlayerEnterHallway()
+	{
+		player.canAttack = false;
 	}
 
 	public void OnPlayerExitHallway()
 	{
-		if(player)
+		player.canAttack = true;
+
+		if (playerPresent)
 		{
 			if (!cleared)
 			{
@@ -276,9 +316,34 @@ public class Room : MonoBehaviour
 	{
 		enemies.Remove(enemy);
 
-		if(enemies.Count == 0)
+		if(enemies.Count == 0 && bosses.Count == 0)
 		{
 			cleared = true;
+
+			if (finalRoom) { levelTrigger.SetActive(true); }
+
+			foreach (GameObject door in doors)
+			{
+				door.SetActive(false);
+			}
+		}
+	}
+
+	private void OnBossEnter(EnemyController enemy)
+	{
+		bosses.Add(enemy);
+		cleared = false;
+	}
+
+	private void OnBossExit(EnemyController enemy)
+	{
+		bosses.Remove(enemy);
+
+		if (enemies.Count == 0 && bosses.Count == 0)
+		{
+			cleared = true;
+
+			if (finalRoom) { levelTrigger.SetActive(true); }
 
 			foreach (GameObject door in doors)
 			{

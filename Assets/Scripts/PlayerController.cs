@@ -9,11 +9,13 @@ public class PlayerController : MonoBehaviour
 	[SerializeField] private Material mat;
 	[SerializeField] private Material hurtMat;
 	[SerializeField] private GameObject projectile;
+	[SerializeField] private bool inHub;
 	private CharacterController controller;
 	private new MeshRenderer renderer;
 	private Vector2 halfScreenSize;
 	private LayerMask attackMask;
 	private Transform eye;
+	private Quaternion walkAngle = Quaternion.AngleAxis(45.0f, Vector3.up);
 
 	private static readonly float MOVEMENT_SPEED = 4.0f;
 	private static readonly float MELEE_ATTACK_COOLDOWN = 1.0f;
@@ -22,12 +24,14 @@ public class PlayerController : MonoBehaviour
 	private static readonly float IFRAME_TIME = 0.25f;
 	private static readonly int MAX_HEALTH = 100;
 	private int health = MAX_HEALTH;
-	private int damage = 20;
+	private int damage = 3;
 	private float meleeTimer = 0.0f;
 	private float rangedTimer = 0.0f;
 	private float attackTimer = 0.0f;
 	private float IframeTimer = 0.0f;
 	private bool invulnerable = false;
+
+	public bool canAttack = true;
 
 	private void Start()
 	{
@@ -45,26 +49,29 @@ public class PlayerController : MonoBehaviour
 		Vector2 mousePos = (Vector2)Input.mousePosition - halfScreenSize;
 
 		//TODO: Because the camera is at an angle to the world, the player would always be facing the mouse perfectly
-		transform.eulerAngles = new Vector3(0.0f, Mathf.Rad2Deg * Mathf.Atan2(mousePos.x, mousePos.y) + 45.0f, 0.0f);
+		transform.eulerAngles = new Vector3(0.0f, Mathf.Rad2Deg * Mathf.Atan2(mousePos.x * 0.75f, mousePos.y) + 45.0f, 0.0f);
 
 		float inputX = Input.GetAxis("Horizontal") * MOVEMENT_SPEED * Time.deltaTime;
 		float inputY = Input.GetAxis("Vertical") * MOVEMENT_SPEED * Time.deltaTime;
 
-		controller.Move(Quaternion.AngleAxis(45.0f, Vector3.up) * new Vector3(inputX, 0.0f, inputY));
+		controller.Move(walkAngle * new Vector3(inputX, 0.0f, inputY));
 
-		meleeTimer -= Time.deltaTime;
-		rangedTimer -= Time.deltaTime;
-		attackTimer -= Time.deltaTime;
-		IframeTimer -= Time.deltaTime;
-		if (IframeTimer <= 0.0f && invulnerable) { renderer.material = mat; invulnerable = false; }
-
-		if (rangedCooldown != null) { rangedCooldown.SetPercent(1.0f - Mathf.Max(rangedTimer, 0.0f) / RANGED_ATTACK_COOLDOWN); }
-		if (meleeCooldown != null) { meleeCooldown.SetPercent(1.0f - Mathf.Max(meleeTimer, 0.0f) / MELEE_ATTACK_COOLDOWN); }
-
-		if (attackTimer <= 0)
+		if (!inHub)
 		{
-			if (Input.GetMouseButtonDown(1) && meleeTimer <= 0) { MeleeAttack(); }
-			else if (Input.GetMouseButton(0) && rangedTimer <= 0) { RangedAttack(); }
+			meleeTimer -= Time.deltaTime;
+			rangedTimer -= Time.deltaTime;
+			attackTimer -= Time.deltaTime;
+			IframeTimer -= Time.deltaTime;
+			if (IframeTimer <= 0.0f && invulnerable) { renderer.material = mat; invulnerable = false; }
+
+			if (rangedCooldown != null) { rangedCooldown.SetPercent(1.0f - Mathf.Max(rangedTimer, 0.0f) / RANGED_ATTACK_COOLDOWN); }
+			if (meleeCooldown != null) { meleeCooldown.SetPercent(1.0f - Mathf.Max(meleeTimer, 0.0f) / MELEE_ATTACK_COOLDOWN); }
+
+			if (attackTimer <= 0 && canAttack)
+			{
+				if (Input.GetMouseButtonDown(1) && meleeTimer <= 0) { MeleeAttack(); }
+				else if (Input.GetMouseButton(0) && rangedTimer <= 0) { RangedAttack(); }
+			}
 		}
 	}
 
