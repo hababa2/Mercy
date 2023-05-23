@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
@@ -48,13 +49,17 @@ public class PlayerController : MonoBehaviour
 
 		Vector2 mousePos = (Vector2)Input.mousePosition - halfScreenSize;
 
-		//TODO: Because the camera is at an angle to the world, the player would always be facing the mouse perfectly
+		//TODO: Because the camera is at an angle to the world, the player doesn't face the mouse perfectly
 		transform.eulerAngles = new Vector3(0.0f, Mathf.Rad2Deg * Mathf.Atan2(mousePos.x * 0.75f, mousePos.y) + 45.0f, 0.0f);
 
 		float inputX = Input.GetAxis("Horizontal") * MOVEMENT_SPEED * Time.deltaTime;
 		float inputY = Input.GetAxis("Vertical") * MOVEMENT_SPEED * Time.deltaTime;
 
 		controller.Move(walkAngle * new Vector3(inputX, 0.0f, inputY));
+
+		Vector3 positon = transform.position;
+		positon.y = 1.5f;
+		transform.position = positon;
 
 		if (!inHub)
 		{

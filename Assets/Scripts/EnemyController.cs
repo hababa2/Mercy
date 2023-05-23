@@ -31,6 +31,7 @@ public class EnemyController : MonoBehaviour
 
 	private bool lineOfSight = false;
 	private float distance = float.MaxValue;
+	private float height;
 
 	public new bool enabled = false;
 
@@ -44,6 +45,8 @@ public class EnemyController : MonoBehaviour
 
 		targetRotation = transform.rotation;
 		health = maxHealth;
+
+		height = transform.position.y;
 	}
 
 	private void Update()
@@ -71,12 +74,21 @@ public class EnemyController : MonoBehaviour
 
 		if (lineOfSight && enabled)
 		{
-			Vector3 move = transform.forward;
-			move.y = 0.0f;
-			controller.Move(move * MOVEMENT_SPEED * Time.deltaTime);
-
-			if (distance <= 1.2f && attacktimer <= 0.0f) { Attack(); }
+			if((player.position - transform.position).sqrMagnitude > transform.localScale.x * transform.localScale.x + 0.2f)
+			{
+				Vector3 move = transform.forward;
+				move.y = 0.0f;
+				controller.Move(move * MOVEMENT_SPEED * Time.deltaTime);
+			}
+			else if(attacktimer <= 0.0f)
+			{
+				Attack();
+			}
 		}
+
+		Vector3 positon = transform.position;
+		positon.y = height;
+		transform.position = positon;
 	}
 
 	public void Damage(int damage)
